@@ -1,0 +1,130 @@
+{% extends 'stroke_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<form method="post" action="{% url 'predict_stroke' %}" class="row g-3">
+    {% csrf_token %}
+    
+    <!-- Primera columna -->
+    <div class="col-md-6">
+        <div class="mb-3 p-3 bg-light border rounded">
+            <h5 class="text-secondary fs-3">Patient Information</h5>
+            <div class="mb-3">
+                <label for="age" class="form-label fw-bold mb-0">Age</label>
+                <div class="d-flex flex-column">
+                    <output id="age_output" class="text-center mb-1 text-secondary fs-5">50</output>
+                    <input type="range" id="age" name="age" min="0" max="100" value="50" class="form-range">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="avg_glucose_level" class="form-label fw-bold mb-0">Avg Glucose Level</label>
+                <div class="d-flex flex-column">
+                    <output id="glucose_output" class="text-center mb-1 text-secondary fs-5">150</output>
+                    <input type="range" id="avg_glucose_level" name="avg_glucose_level" min="50" max="200" value="150" class="form-range">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="bmi" class="form-label fw-bold mb-0">BMI</label>
+                <div class="d-flex flex-column">
+                    <output id="bmi_output" class="text-center mb-1 text-secondary fs-5">30</output>
+                    <input type="range" id="bmi" name="bmi" min="10" max="50" value="30" class="form-range">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.hypertension.id_for_label }}" class="form-label fw-bold">Hypertension</label>
+                {{ form.hypertension }}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.heart_disease.id_for_label }}" class="form-label fw-bold">Heart Disease</label>
+                {{ form.heart_disease }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Segunda columna -->
+    <div class="col-md-6">
+        <div class="mb-3 p-3 bg-light border rounded">
+            <h5 class="text-secondary fs-3">Lifestyle Information</h5>
+            <div class="mb-4">
+                <label for="{{ form.gender.id_for_label }}" class="form-label fw-bold">Gender</label>
+                {{ form.gender }}
+            </div>
+
+            <div class="mb-4">
+                <label for="{{ form.ever_married.id_for_label }}" class="form-label fw-bold">Ever Married</label>
+                {{ form.ever_married }}
+            </div>
+
+            <div class="mb-4">
+                <label for="{{ form.work_type.id_for_label }}" class="form-label fw-bold">Work Type</label>
+                {{ form.work_type }}
+            </div>
+
+            <div class="mb-4">
+                <label for="{{ form.Residence_type.id_for_label }}" class="form-label fw-bold">Residence Type</label>
+                {{ form.Residence_type }}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.smoking_status.id_for_label }}" class="form-label fw-bold">Smoking Status</label>
+                {{ form.smoking_status }}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 mt-0 text-center">
+        <button type="submit" class="btn btn-primary px-5 fw-bolder">Predict</button>
+    </div>
+</form>
+  
+<!-- Modal -->
+<div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="resultModalLabel">Prediction Result</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Stroke Risk: {{ risk }}</p>
+          <p>Probability: {{ probability }}</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configuración de los sliders
+        function setupSlider(sliderId, outputId) {
+            const slider = document.getElementById(sliderId);
+            const output = document.getElementById(outputId);
+
+            if (slider && output) {
+                output.innerText = slider.value;
+                slider.addEventListener('input', function() {
+                    output.innerText = this.value;
+                });
+            }
+        }
+
+        // Inicializar sliders
+        setupSlider('age', 'age_output');
+        setupSlider('avg_glucose_level', 'glucose_output');
+        setupSlider('bmi', 'bmi_output');
+
+        // Mostrar el modal si hay resultados
+        {% if show_result %}
+            const resultModal = new bootstrap.Modal(document.getElementById('resultModal'));
+            resultModal.show();
+        {% endif %}
+    });
+</script>
+{% endblock %}
